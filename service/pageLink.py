@@ -36,7 +36,7 @@ class Browser:
         htmlObj = BeautifulSoup(content, "html.parser")
         return htmlObj
 
-    def getHeader(self, pageData):
+    def getHeader(self, pageData, url=None):
         print('开始获取分类链接')
         hrefUrl = []
         header = pageData.find(name=['header'])
@@ -44,6 +44,9 @@ class Browser:
         for li in liObj:
             href = li['href']
             if 'product/category' in href and href not in hrefUrl:
+                if url not in href:
+                    href = f"{url}/{href}"
+                    print(f'简短Url>>>>>>>>>>>,拼接后{url}')
                 hrefUrl.append(href)
         return hrefUrl
 
@@ -54,19 +57,22 @@ class Browser:
         :param pageData:
         :return:
         """
-        print('开始获取分页链接')
+        print('开始获取分页链接', url)
         paginationList = []
         paginationNo = 1
         pagination = pageData.find(name='ul', attrs={"class": "pagination"})
-        paginationItem = pagination.find_all(name='li')
-        for item in paginationItem:
-            itemObj = item.find(name='a')
-            if itemObj is None or itemObj == 'None':
-                continue
-            itemNum = itemObj.text
-            if itemNum.isdigit():
-                if paginationNo < int(itemNum):
-                    paginationNo = int(itemNum)
+        if not pagination:
+            print('没有分页数据')
+        else:
+            paginationItem = pagination.find_all(name='li')
+            for item in paginationItem:
+                itemObj = item.find(name='a')
+                if itemObj is None or itemObj == 'None':
+                    continue
+                itemNum = itemObj.text
+                if itemNum.isdigit():
+                    if paginationNo < int(itemNum):
+                        paginationNo = int(itemNum)
         for row in range(paginationNo):
             if row + 1 <= 1:
                 paginationList.append(url)
@@ -77,7 +83,7 @@ class Browser:
 
     def getGoods(self, pageData):
         """
-
+        获取商品链接
         :param pageData:
         :return:
         """
@@ -106,7 +112,7 @@ def main(url, is_force=None):
     if os.path.exists(listUrls) is False:
         print('Urls文件不存在，需要通过爬虫获取')
         my_browser = Browser()
-        headerList = my_browser.getHeader(Browser().getPageData(url))
+        headerList = my_browser.getHeader(Browser().getPageData(url), url)
         pageList = pageList + headerList
         print(f"获取到的分类地址数量:{len(headerList)}")
         for item in headerList:

@@ -6,7 +6,10 @@
 # @Time: 09:44
 # @Email: snyder.xiang@gmail.com
 import json
+import os
 import random
+import threading
+
 from selenium.webdriver import Chrome
 import fire
 from selenium.common import TimeoutException
@@ -28,7 +31,7 @@ def get_proxy(type='smartproxy'):
             proxy_list = response['data']['list']
             return proxy_list
     if type == 'ipipgo':
-        proxy_url = 'http://api.ipipgo.com/ip?cty=US&c=500&pt=1&ft=json&pat=\n&rep=1&key=aa7acddc&ts=3'
+        proxy_url = 'http://api.ipipgo.com/ip?cty=US&c=500&pt=1&ft=json&pat=\n&rep=1&key=aa7acddc&ts=30'
         response = requests.get(url=proxy_url)
         if response.status_code != 200:
             return
@@ -46,6 +49,7 @@ class Access:
     def __init__(self, url=None):
         if url is None:
             url = "https://www.btwearables.com"
+            # url = "https://shop.snyder.cc"
         self.page_link = link_main(url)
 
     def web_access(self):
@@ -65,8 +69,8 @@ class Access:
             return
         for i in range(1000):
             i += 1
-            if i % 100 == 0:
-                proxy_list = get_proxy()
+            if i % 50 == 0:
+                proxy_list = get_proxy('ipipgo')
             choice_proxy = random.choice(proxy_list)
             choice_list = choice_proxy.split(':')
             try:
@@ -85,8 +89,8 @@ class Access:
             print(f'LOOP---->>>>{i}')
 
 
-def main():
-    my_access = Access()
+def main(url):
+    my_access = Access(url)
     my_access.web_access()
 
 
@@ -95,4 +99,11 @@ if __name__ == '__main__':
     # fire.Fire({
     #     'main': main,
     # })
-    main()
+    with open(f"{os.path.abspath('..')}/config/url.json") as urls:
+        uList = json.loads(urls.read())['urls']
+    if len(uList) > 0:
+        for item in uList:
+            task = threading.Thread(target=main, args=(item,))
+            task.start()
+    else:
+        print('没有需要执行的任务')
