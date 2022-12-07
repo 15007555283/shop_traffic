@@ -116,22 +116,21 @@ class AccessMall:
 
         proxy_list = get_proxy()
         chrome_options = Options()
-        prefs = {'profile.managed_default_content_settings.images': 2, 'permissions.default.stylesheet': 2}
-        chrome_options.add_experimental_option('prefs', prefs)
-        diver = Chrome(options=chrome_options)
+        # prefs = {'profile.managed_default_content_settings.images': 2, 'permissions.default.stylesheet': 2}
+        # chrome_options.add_experimental_option('prefs', prefs)
         chrome_options.add_experimental_option("detach", True)
 
         for i in range(10000):
             choice_proxy = random.choice(proxy_list)
             choice_list = choice_proxy.split(':')
             try:
-                chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
+                # chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
                 diver = Chrome(options=chrome_options)
-                diver.set_page_load_timeout(10)
-                diver.set_page_load_timeout(10)
-                diver.get(f'{random.choice(self.activeList)}')
+                # diver.set_page_load_timeout(10)
+                # diver.set_page_load_timeout(10)
+                diver.get(f'https://www.bagatrade.com')
                 # diver.get('https://shop.snyder.cc')
-                # print(diver.page_source)
+                print(diver.page_source)
             except TimeoutException:
                 print('页面加载超时')
             except Exception as e:
@@ -140,7 +139,7 @@ class AccessMall:
 
 
 def main():
-    AccessMall().web_access('https://www.btwearables.com')
+    AccessMall().web_access('https://www.bagatrade.com')
 
 if __name__ == '__main__':
     main()

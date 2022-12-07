@@ -35,10 +35,10 @@ def get_proxy():
 class AccessMall:
 
     def __init__(self):
-        self.config_path = f"{os.path.abspath('..')}/config"
+        self.config_path = f"{os.path.abspath('.')}/config"
         self.urlPath = f"{self.config_path}/url.json"
         self.invalidLink = ['#', 'None', 'javascript:void(0)']
-        self.loop_max = 2
+        self.loop_max = 10
         self.loop_num = 0
         self.hrefList = []
         self.activeList = []
@@ -79,6 +79,8 @@ class AccessMall:
             h_url = h.get('href')
             if h_url not in self.invalidLink:
                 if self.is_image(h_url):
+                    continue
+                if 'product/product' not in h_url:
                     continue
                 if h_url is None or len(str(h_url)) < len(self.__url) or h_url[:len(self.__url)] != self.__url:
                     continue
@@ -157,16 +159,16 @@ def access(url):
     my_access.web_access(url)
 
 def main():
-    uList = []
-    with open(f"{os.path.abspath('..')}/config/url.json") as urls:
-        uList = json.loads(urls.read())['urls']
-    if len(uList) <= 0:
-        print('没有需要执行的任务')
-        return
-    for item in uList:
-        task = threading.Thread(target=access, args=(item,))
-        task.start()
-    # access("https://www.bagatrade.com")
+    # uList = []
+    # with open(f"{os.path.abspath('.')}/config/url.json") as urls:
+    #     uList = json.loads(urls.read())['urls']
+    # if len(uList) <= 0:
+    #     print('没有需要执行的任务')
+    #     return
+    # for item in uList:
+    #     task = threading.Thread(target=access, args=(item,))
+    #     task.start()
+    access("https://www.storeatrade.com")
 
 
 if __name__ == '__main__':
