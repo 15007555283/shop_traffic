@@ -42,7 +42,7 @@ def get_proxy(type='smartproxy'):
                 proxy_list.append(f"{ip['ip']}:{ip['port']}")
             return proxy_list
     if type == 'smartdaili':
-        proxy_list.append(f"http://us.smartproxy.com:1000")
+        proxy_list.append(f"us.smartproxy.com:10000")
         return proxy_list
     return proxy_list
 
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # })
     with open(f"{os.path.abspath('..')}/config/url.json") as urls:
         uList = json.loads(urls.read())['urls']
-    uList = ["https://shop.snyder.cc"]
+    # uList = ["https://shop.snyder.cc"]
     if len(uList) > 0:
         for item in uList:
             task = threading.Thread(target=main, args=(item, "smartdaili"))
