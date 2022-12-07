@@ -41,16 +41,20 @@ def get_proxy(type='smartproxy'):
             for ip in response['data']:
                 proxy_list.append(f"{ip['ip']}:{ip['port']}")
             return proxy_list
+    if type == 'smartdaili':
+        proxy_list.append(f"http://us.smartproxy.com:1000")
+        return proxy_list
     return proxy_list
 
 
 class Access:
 
-    def __init__(self, url=None):
+    def __init__(self, url=None, proxy_type="smartproxy"):
         if url is None:
             url = "https://www.btwearables.com"
             # url = "https://shop.snyder.cc"
         self.page_link = link_main(url)
+        self.proxy_type = proxy_type
 
     def web_access(self):
         chrome_options = Options()
@@ -60,7 +64,7 @@ class Access:
         # chrome_options.add_argument('--headless')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument("--disable-extensions")
-        proxy_list = get_proxy(type='ipipgo')
+        proxy_list = get_proxy(type='smartdaili')
         if len(proxy_list) <= 0:
             print('没有获取到代理IP')
             return
@@ -70,7 +74,7 @@ class Access:
         for i in range(1000):
             i += 1
             if i % 50 == 0:
-                proxy_list = get_proxy('ipipgo')
+                proxy_list = get_proxy('smartdaili')
             choice_proxy = random.choice(proxy_list)
             choice_list = choice_proxy.split(':')
             try:
@@ -89,8 +93,8 @@ class Access:
             print(f'LOOP---->>>>{i}')
 
 
-def main(url):
-    my_access = Access(url)
+def main(url, proxy_type):
+    my_access = Access(url, proxy_type)
     my_access.web_access()
 
 
@@ -101,9 +105,10 @@ if __name__ == '__main__':
     # })
     with open(f"{os.path.abspath('..')}/config/url.json") as urls:
         uList = json.loads(urls.read())['urls']
+    uList = ["https://shop.snyder.cc"]
     if len(uList) > 0:
         for item in uList:
-            task = threading.Thread(target=main, args=(item,))
+            task = threading.Thread(target=main, args=(item, "smartdaili"))
             task.start()
     else:
         print('没有需要执行的任务')

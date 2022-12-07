@@ -102,7 +102,7 @@ class Browser:
 
 def main(url, is_force=None):
     print(f"开始解析Url地址:{url}")
-    config_path = f"{os.path.abspath('./')}/config"
+    config_path = f"{os.path.abspath('../')}/config"
     listUrls = f"{config_path}/{url.replace('https://', '')}.json"
     print(f'存放Urls的Json文件{listUrls}')
     pageList = []
