@@ -85,12 +85,13 @@ class Access:
                 diver.get(f'{random.choice(self.page_link)}')
                 # diver.get('https://shop.snyder.cc')
                 # print(diver.page_source)
+                print(f'LOOP---->>>>Success>>>>>>{i}')
             except TimeoutException:
-                print('页面加载超时')
+                print(f'LOOP---->>>>Error>>>>>>页面加载超时{i}')
             except Exception as e:
-                print(e)
+                print(f'LOOP---->>>>Error>>>>>>未知错误{e}')
             diver.quit()
-            print(f'LOOP---->>>>{i}')
+
 
 
 def main(url, proxy_type):
