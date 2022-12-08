@@ -84,8 +84,8 @@ class Access:
             try:
                 chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
                 diver = webdriver.Chrome(options=chrome_options)
-                diver.set_page_load_timeout(10)
-                diver.set_page_load_timeout(10)
+                diver.set_page_load_timeout(20)
+                diver.set_page_load_timeout(20)
                 diver.get(f'{random.choice(self.page_link)}')
                 # diver.get('https://shop.snyder.cc')
                 # print(diver.page_source)
