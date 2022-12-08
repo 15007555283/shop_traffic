@@ -9,7 +9,7 @@ import json
 import os
 import random
 import threading
-
+from selenium import webdriver
 from selenium.webdriver import Chrome
 import fire
 from selenium.common import TimeoutException
@@ -22,11 +22,12 @@ def get_proxy(type='smartproxy'):
     print('获取代理IP')
     proxy_list = []
     if type == 'smartproxy':
-        proxy_url = 'https://api.smartproxy.cn/web_v1/ip/get-ip?app_key=21824639440f11a4e83a6b1cd3ea79e8&pt=9&num=1000&cc=US&protocol=1&format=json&nr=%5Cr%5Cn'
+        proxy_url = 'https://api.smartproxy.cn/web_v1/ip/get-ip?app_key=21824639440f11a4e83a6b1cd3ea79e8&pt=9&num=500&cc=US&protocol=1&format=json&nr=%5Cr%5Cn'
         response = requests.get(url=proxy_url)
         if response.status_code != 200:
             return
         response = json.loads(response.text)
+        print('>>>>>>', response)
         if response['code'] == 200:
             proxy_list = response['data']['list']
             return proxy_list
@@ -57,14 +58,17 @@ class Access:
         self.proxy_type = proxy_type
 
     def web_access(self):
-        chrome_options = Options()
+        chrome_options = webdriver.ChromeOptions()
         prefs = {'profile.managed_default_content_settings.images': 2, 'permissions.default.stylesheet': 2}
         chrome_options.add_experimental_option('prefs', prefs)
-        # chrome_options.add_experimental_option("detach", True)
+        chrome_options.add_argument('--dont-load-style-from-plugins')
+        chrome_options.add_argument('--ignore-preload-cache')
         # chrome_options.add_argument('--headless')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument("--disable-extensions")
-        proxy_list = get_proxy(type='smartdaili')
+        proxy_list = []
+        while len(proxy_list) <= 0:
+            proxy_list = get_proxy(type=self.proxy_type)
         if len(proxy_list) <= 0:
             print('没有获取到代理IP')
             return
@@ -74,12 +78,12 @@ class Access:
         for i in range(1000):
             i += 1
             if i % 50 == 0:
-                proxy_list = get_proxy('smartdaili')
+                proxy_list = get_proxy(self.proxy_type)
             choice_proxy = random.choice(proxy_list)
             choice_list = choice_proxy.split(':')
             try:
                 chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
-                diver = Chrome(options=chrome_options)
+                diver = webdriver.Chrome(options=chrome_options)
                 diver.set_page_load_timeout(10)
                 diver.set_page_load_timeout(10)
                 diver.get(f'{random.choice(self.page_link)}')
@@ -109,7 +113,7 @@ if __name__ == '__main__':
     # uList = ["https://shop.snyder.cc"]
     if len(uList) > 0:
         for item in uList:
-            task = threading.Thread(target=main, args=(item, "smartdaili"))
+            task = threading.Thread(target=main, args=(item, "smartproxy"))
             task.start()
     else:
         print('没有需要执行的任务')

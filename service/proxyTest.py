@@ -8,6 +8,8 @@ proxyUser = "user-mall"
 proxyPass = "mail.2022"
 chrome_options = ChromeOptions()
 chrome_options.add_extension(create_proxy_auth_extension(proxyHost, proxyPort, proxyUser, proxyPass))
+chrome_options.add_argument('--dont-load-style-from-plugins')
+chrome_options.add_argument('--ignore-preload-cache')
 driver = Chrome(options=chrome_options)
 driver.get('https://shop.snyder.cc')
 print(driver.page_source)
