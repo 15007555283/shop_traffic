@@ -16,6 +16,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from service.pageLink import main as link_main
 import requests
+from create_proxy_auth_extension import create_proxy_auth_extension
 
 
 def get_proxy(type='smartproxy'):
@@ -27,7 +28,6 @@ def get_proxy(type='smartproxy'):
         if response.status_code != 200:
             return
         response = json.loads(response.text)
-        print('>>>>>>', response)
         if response['code'] == 200:
             proxy_list = response['data']['list']
             return proxy_list
@@ -48,16 +48,28 @@ def get_proxy(type='smartproxy'):
     return proxy_list
 
 
+def get_proxy_user(type='smartproxy'):
+    if type == 'smartproxy':
+        proxyHost = "proxy.smartproxycn.com"
+        proxyPort = "1000"
+        # 代理隧道验证信息（账号+密码）
+        proxyUser = "mallus_area-US"
+        proxyPass = "linemall888"
+        return proxyHost, proxyPort, proxyUser, proxyPass
+
+
 class Access:
 
-    def __init__(self, url=None, proxy_type="smartproxy"):
+    def __init__(self, url=None, proxy_type="smartproxy", proxy_way="ip"):
         if url is None:
             url = "https://www.btwearables.com"
             # url = "https://shop.snyder.cc"
         self.page_link = link_main(url)
         self.proxy_type = proxy_type
+        self.proxy_way = proxy_way
 
     def web_access(self):
+        global choice_list
         chrome_options = webdriver.ChromeOptions()
         prefs = {'profile.managed_default_content_settings.images': 2, 'permissions.default.stylesheet': 2}
         chrome_options.add_experimental_option('prefs', prefs)
@@ -67,25 +79,30 @@ class Access:
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument("--disable-extensions")
         proxy_list = []
-        while len(proxy_list) <= 0:
-            proxy_list = get_proxy(type=self.proxy_type)
-        if len(proxy_list) <= 0:
-            print('没有获取到代理IP')
-            return
+        if self.proxy_way == "ip":
+            while len(proxy_list) <= 0:
+                proxy_list = get_proxy(type=self.proxy_type)
+            if len(proxy_list) <= 0:
+                print('没有获取到代理IP')
+                return
         if len(self.page_link) <= 0:
             print('没有获取到该网站的页面地址')
             return
         for i in range(1000):
             i += 1
-            if i % 50 == 0:
+            if i % 50 == 0 and self.proxy_way == "ip":
                 proxy_list = get_proxy(self.proxy_type)
-            choice_proxy = random.choice(proxy_list)
-            choice_list = choice_proxy.split(':')
+                choice_proxy = random.choice(proxy_list)
+                choice_list = choice_proxy.split(':')
             try:
-                chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
+                if self.proxy_way == "ip":
+                    chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
+                if self.proxy_way == "user":
+                    proxy_obj = get_proxy_user(self.proxy_type)
+                    chrome_options.add_extension(create_proxy_auth_extension(proxy_obj[0], proxy_obj[1], proxy_obj[2], proxy_obj[3]))
                 diver = webdriver.Chrome(options=chrome_options)
-                diver.set_page_load_timeout(20)
-                diver.set_page_load_timeout(20)
+                diver.set_page_load_timeout(40)
+                diver.set_page_load_timeout(40)
                 diver.get(f'{random.choice(self.page_link)}')
                 # diver.get('https://shop.snyder.cc')
                 # print(diver.page_source)
@@ -97,9 +114,8 @@ class Access:
             diver.quit()
 
 
-
-def main(url, proxy_type):
-    my_access = Access(url, proxy_type)
+def main(url, proxy_type, proxy_way):
+    my_access = Access(url, proxy_type, proxy_way)
     my_access.web_access()
 
 
@@ -113,7 +129,7 @@ if __name__ == '__main__':
     # uList = ["https://shop.snyder.cc"]
     if len(uList) > 0:
         for item in uList:
-            task = threading.Thread(target=main, args=(item, "smartproxy"))
+            task = threading.Thread(target=main, args=(item, "smartproxy", "user"))
             task.start()
     else:
         print('没有需要执行的任务')
