@@ -2,10 +2,9 @@ import random
 import string
 import zipfile
 
-def create_proxy_auth_extension(proxy_host, proxy_port, proxy_username, proxy_password, scheme='http', plugin_path=None):
+def create_proxy_auth_extension(proxy_host, proxy_port, proxy_username, proxy_password, proxy_name, scheme='http', plugin_path=None):
     if plugin_path is None:
-        plugin_path = r'{}_{}@http-dyn.dobel.com_9020.zip'.format(proxy_username, proxy_password)
-
+        plugin_path = r'{}_{}@{}.zip'.format(proxy_username, proxy_password, proxy_name)
     manifest_json = """
     {
         "version": "1.0.0",
@@ -69,5 +68,5 @@ def create_proxy_auth_extension(proxy_host, proxy_port, proxy_username, proxy_pa
     with zipfile.ZipFile(plugin_path, 'w') as zp:
         zp.writestr("manifest.json", manifest_json)
         zp.writestr("background.js", background_js)
-
+    print(plugin_path)
     return plugin_path

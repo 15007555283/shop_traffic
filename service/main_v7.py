@@ -11,6 +11,7 @@ import random
 import threading
 from selenium import webdriver
 from selenium.webdriver import Chrome
+from selenium.webdriver import ChromeOptions
 import fire
 from selenium.common import TimeoutException
 from selenium.webdriver.chrome.options import Options
@@ -70,16 +71,14 @@ class Access:
 
     def web_access(self):
         global choice_list
-        chrome_options = webdriver.ChromeOptions()
+        chrome_options = ChromeOptions()
         prefs = {'profile.managed_default_content_settings.images': 2, 'permissions.default.stylesheet': 2}
         chrome_options.add_experimental_option('prefs', prefs)
-        chrome_options.add_argument('--dont-load-style-from-plugins')
-        chrome_options.add_argument('--ignore-preload-cache')
-        # chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument("--disable-extensions")
         proxy_list = []
         if self.proxy_way == "ip":
+            # chrome_options.add_argument('--headless')
+            # chrome_options.add_argument('--disable-gpu')
+            # chrome_options.add_argument("--disable-extensions")
             while len(proxy_list) <= 0:
                 proxy_list = get_proxy(type=self.proxy_type)
             if len(proxy_list) <= 0:
@@ -99,8 +98,8 @@ class Access:
                     chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
                 if self.proxy_way == "user":
                     proxy_obj = get_proxy_user(self.proxy_type)
-                    chrome_options.add_extension(create_proxy_auth_extension(proxy_obj[0], proxy_obj[1], proxy_obj[2], proxy_obj[3]))
-                diver = webdriver.Chrome(options=chrome_options)
+                    chrome_options.add_extension(create_proxy_auth_extension(proxy_obj[0], proxy_obj[1], proxy_obj[2], proxy_obj[3], self.proxy_type))
+                diver = Chrome(options=chrome_options)
                 diver.set_page_load_timeout(40)
                 diver.set_page_load_timeout(40)
                 diver.get(f'{random.choice(self.page_link)}')
@@ -126,7 +125,6 @@ if __name__ == '__main__':
     # })
     with open(f"{os.path.abspath('..')}/config/url.json") as urls:
         uList = json.loads(urls.read())['urls']
-    # uList = ["https://shop.snyder.cc"]
     if len(uList) > 0:
         for item in uList:
             task = threading.Thread(target=main, args=(item, "smartproxy", "user"))
