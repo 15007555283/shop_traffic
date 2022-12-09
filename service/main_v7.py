@@ -9,6 +9,8 @@ import json
 import os
 import random
 import threading
+import time
+
 from selenium import webdriver
 from selenium.webdriver import Chrome
 from selenium.webdriver import ChromeOptions
@@ -110,6 +112,7 @@ class Access:
                 print(f'LOOP---->>>>Error>>>>>>页面加载超时{i}')
             except Exception as e:
                 print(f'LOOP---->>>>Error>>>>>>未知错误{e}')
+            time.sleep(random.randint(5, 20))
             diver.quit()
 
 
