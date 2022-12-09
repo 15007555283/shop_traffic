@@ -128,7 +128,7 @@ if __name__ == '__main__':
     # })
     with open(f"{os.path.abspath('..')}/config/url.json") as urls:
         uList = json.loads(urls.read())['urls']
-    uList = ["https://shop.snyder.cc"]
+    # uList = ["https://shop.snyder.cc"]
     if len(uList) > 0:
         for item in uList:
             task = threading.Thread(target=main, args=(item, "smartproxy", "ip"))
