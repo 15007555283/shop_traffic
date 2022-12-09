@@ -70,8 +70,8 @@ class Access:
         self.proxy_way = proxy_way
 
     def web_access(self):
-        global choice_list
-        chrome_options = ChromeOptions()
+        global choice_list, diver
+        chrome_options = webdriver.ChromeOptions()
         prefs = {'profile.managed_default_content_settings.images': 2, 'permissions.default.stylesheet': 2}
         chrome_options.add_experimental_option('prefs', prefs)
         proxy_list = []
@@ -91,15 +91,15 @@ class Access:
             i += 1
             if i % 50 == 0 and self.proxy_way == "ip":
                 proxy_list = get_proxy(self.proxy_type)
-                choice_proxy = random.choice(proxy_list)
-                choice_list = choice_proxy.split(':')
+            choice_proxy = random.choice(proxy_list)
+            choice_list = choice_proxy.split(':')
             try:
                 if self.proxy_way == "ip":
                     chrome_options.add_argument(f"--proxy-server=http://{choice_list[0]}:{choice_list[1]}")
                 if self.proxy_way == "user":
                     proxy_obj = get_proxy_user(self.proxy_type)
                     chrome_options.add_extension(create_proxy_auth_extension(proxy_obj[0], proxy_obj[1], proxy_obj[2], proxy_obj[3], self.proxy_type))
-                diver = Chrome(options=chrome_options)
+                diver = webdriver.Chrome(options=chrome_options)
                 diver.set_page_load_timeout(40)
                 diver.set_page_load_timeout(40)
                 diver.get(f'{random.choice(self.page_link)}')
@@ -125,9 +125,10 @@ if __name__ == '__main__':
     # })
     with open(f"{os.path.abspath('..')}/config/url.json") as urls:
         uList = json.loads(urls.read())['urls']
+    uList = ["https://shop.snyder.cc"]
     if len(uList) > 0:
         for item in uList:
-            task = threading.Thread(target=main, args=(item, "smartproxy", "user"))
+            task = threading.Thread(target=main, args=(item, "smartproxy", "ip"))
             task.start()
     else:
         print('没有需要执行的任务')
